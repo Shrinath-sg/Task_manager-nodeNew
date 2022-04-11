@@ -46,10 +46,15 @@ router.patch("/tasks/:id",async(req,res)=>{
         return res.status(400).send({"error": "requested property does not exists."})
     }
     try{
-        const task = await Task.findByIdAndUpdate(_id,req.body,{runValidators: true});
+        const task = await Task.findById(_id);
+        // const task = await Task.findByIdAndUpdate(_id,req.body,{runValidators: true});
         if(!task){
             return res.status(404).send({"error":"task not found"});
         }
+        inputs.forEach((proprty)=>
+        task[proprty] = req.body[proprty]
+    );
+    await task.save();
         res.send(task);
     }catch(e){
         res.status(400).send(e);

@@ -1,14 +1,37 @@
 const express = require("express");
+const { use } = require("express/lib/application");
+const req = require("express/lib/request");
 const User = require('../models/user')
 const router = new express.Router();
 
  router.post("/users",async(request,response)=>{
     const user = User(request.body);
     try{
-        await user.save()
-        response.status(201).send(user);
+        await user.save();
+        const token = await user.generateToken();
+
+        response.status(201).send({user,token});
     }catch(e){
         response.status(400).send(e);
+    }
+    // const user = User(request.body);
+    //  user.save().then((result)=>{
+    //      response.send(user)
+    //  }).catch((err)=>{
+    //      response.status(400).send(err)
+    //  });
+    // console.log(request.body);
+});
+
+router.post("/users/login",async(request,response)=>{
+    try{
+        const user = await User.findByCredentials(request.body.email,request.body.password);
+        const token = await user.generateToken();
+        // await user.save()
+        response.send({user,token});
+    }catch(error){
+        response.status(400).send({error});
+        console.log(error);
     }
     // const user = User(request.body);
     //  user.save().then((result)=>{
@@ -65,10 +88,15 @@ router.patch("/users/:id",async(req,res)=>{
         return res.status(400).send({"error": "requested property does not exists."})
     }
     try{
-        const user = await User.findByIdAndUpdate(_id,req.body,{runValidators: true});
+        const user = await User.findById(_id);
+        // const user = await User.findByIdAndUpdate(_id,req.body,{runValidators: true});
         if(!user){
             return res.status(404).send({"error":"user not found"});
         }
+        inputs.forEach((proprty)=>
+            user[proprty] = req.body[proprty]
+        );
+        await user.save();
         res.send(user);
     }catch(e){
         res.status(400).send(e);

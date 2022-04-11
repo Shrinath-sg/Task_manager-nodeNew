@@ -6,6 +6,7 @@ const res = require('express/lib/response');
 require('./mongoos')
 const userRouter = require("./routers/user");
 const taskRouter = require("./routers/task");
+const jwt = require('jsonwebtoken')
 const app = express();
 
 const port =  process.env.PORT || 3000;
