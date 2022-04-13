@@ -33,7 +33,8 @@ userSchema.methods.generateToken = async function (){
     console.log('inside genrate token');
     const user = this;
     const token = jwt.sign({_id : user._id.toString()},"thisistoken");
-    user.tokens = user.tokens.concat({token})
+    user.tokens = user.tokens.concat({token});
+    await user.save();
     return token;
 }
 // userSchema.methods.generateToken = async function (){

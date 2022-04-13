@@ -2,6 +2,7 @@ const express = require("express");
 const { use } = require("express/lib/application");
 const req = require("express/lib/request");
 const User = require('../models/user')
+const auth = require('../middleware/auth');
 const router = new express.Router();
 
  router.post("/users",async(request,response)=>{
@@ -42,7 +43,19 @@ router.post("/users/login",async(request,response)=>{
     // console.log(request.body);
 });
 
-router.get("/getAllUsers",async(request,response)=>{
+router.get("/users/me",auth,async(request,response)=>{
+    try{
+        response.status(200).send(request.user);
+    }catch(e){
+        response.status(400).send(e);
+    }
+    // User.find({}).then((users)=>{
+    //     response.send(users);
+    // }).catch((err)=>{
+    //     response.status(500).send(err);
+    // });
+})
+router.get("/getAllUsers",auth,async(request,response)=>{
     try{
         const users = await User.find({});
         response.status(200).send(users);
