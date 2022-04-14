@@ -28,6 +28,7 @@ router.post("/users/login",async(request,response)=>{
     try{
         const user = await User.findByCredentials(request.body.email,request.body.password);
         const token = await user.generateToken();
+        // const publicProfile = 
         // await user.save()
         response.send({user,token});
     }catch(error){
@@ -43,11 +44,34 @@ router.post("/users/login",async(request,response)=>{
     // console.log(request.body);
 });
 
+router.post("/users/logout",auth,async(request,response)=>{
+    try{
+        // console.log("my token" + request.token  );
+      request.user.tokens = request.user.tokens.filter((token) => { 
+          console.log(token);
+           return token.token !== request.token  });
+      await request.user.save();
+      response.send('successfully logged out!');
+    }catch(error){
+        response.status(400).send({error});
+    }
+});
+
+router.post("/users/logoutAll",auth,async(request,response)=>{
+    try{
+        // console.log("my token" + request.token  );
+      request.user.tokens = [];
+      await request.user.save();
+      response.send('successfully logged out!');
+    }catch(error){
+        response.status(500).send({error});
+    }
+});
 router.get("/users/me",auth,async(request,response)=>{
     try{
         response.status(200).send(request.user);
     }catch(e){
-        response.status(400).send(e);
+        response.status(500).send(e);
     }
     // User.find({}).then((users)=>{
     //     response.send(users);

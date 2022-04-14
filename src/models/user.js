@@ -37,6 +37,14 @@ userSchema.methods.generateToken = async function (){
     await user.save();
     return token;
 }
+
+userSchema.methods.toJSON = function (){
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.tokens;
+    return userObject;
+}
 // userSchema.methods.generateToken = async function (){
 //     console.log('inside genrate token');
 //     const user = this;
