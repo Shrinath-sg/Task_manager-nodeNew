@@ -30,6 +30,18 @@ app.use(taskRouter);
 // }).catch((err)=>{console.log(err)});
 
 
+
 app.listen(port,()=>{
     console.log(`listening on port ${port}`)
 });
+
+const main = async()=>{
+    const user = await  User.findById("62590473925b06eb57e64657");
+    if(!user){
+        return console.log('error somwthing went wrong!');
+    }
+    await user.populate("tasks");
+    // console.log(user);
+    console.log(user.tasks);
+}
+// main()

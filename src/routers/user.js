@@ -32,7 +32,7 @@ router.post("/users/login",async(request,response)=>{
         // await user.save()
         response.send({user,token});
     }catch(error){
-        response.status(400).send({error});
+        response.status(400).send({error: " Unable to login!"});
         console.log(error);
     }
     // const user = User(request.body);
@@ -115,39 +115,40 @@ router.get("/getUserById/:id",async(request,response)=>{
     // });
 });
 
-router.patch("/users/:id",async(req,res)=>{
+router.patch("/users/me",auth,async(req,res)=>{
     const inputs = Object.keys(req.body);
     const validInputs = ["email","password","name","age"];
     const isValid = inputs.every((ele) => validInputs.includes(ele))
-    const _id = req.params.id;
+    // const _id = req.params.id;
     console.log(req.body);
     if(!isValid){
         return res.status(400).send({"error": "requested property does not exists."})
     }
     try{
-        const user = await User.findById(_id);
+        // const user = await User.findById(_id);
         // const user = await User.findByIdAndUpdate(_id,req.body,{runValidators: true});
-        if(!user){
-            return res.status(404).send({"error":"user not found"});
-        }
+        // if(!req.user){
+        //     return res.status(404).send({"error":"user not found"});
+        // }
         inputs.forEach((proprty)=>
-            user[proprty] = req.body[proprty]
+            req.user[proprty] = req.body[proprty]
         );
-        await user.save();
-        res.send(user);
+        await req.user.save();
+        res.send(req.user);
     }catch(e){
         res.status(400).send(e);
     }
 });
 
-router.delete("/users/:id",async(req,res)=>{
-    const _id = req.params.id;
+router.delete("/users/me",auth,async(req,res)=>{
+    // const _id = req.params.id;
     try{
-        const user = await User.findByIdAndDelete(_id);
-        if(!user){
-            return res.status(404).send({"error":"user not found"});
-        }
-        res.send(user);
+        // const user = await User.findByIdAndDelete(_id);
+        // if(!user){
+        //     return res.status(404).send({"error":"user not found"});
+        // }
+        await req.user.remove();
+        res.send(req.user);
     }catch(e){
         res.status(400).send(e);
     }
