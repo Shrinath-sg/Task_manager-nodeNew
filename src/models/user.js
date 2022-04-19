@@ -27,8 +27,11 @@ const userSchema = mongoose.Schema({
             type: String,
             required: true
         }
-    }]
-});
+    }],
+    avatar: {
+        type:Buffer
+    }
+},{timestamps:true});
 userSchema.virtual('tasks',{
     ref: "Task",
     localField: "_id",
@@ -49,6 +52,7 @@ userSchema.methods.toJSON = function (){
     const userObject = user.toObject();
     delete userObject.password;
     delete userObject.tokens;
+    delete userObject.avatar;
     return userObject;
 }
 // userSchema.methods.generateToken = async function (){
@@ -99,6 +103,7 @@ next();
 userSchema.pre("remove",async function (next){
     const user = this;
     await Task.deleteMany({"owner": user._id});
+    next();
 });
 
 const User = mongoose.model("User",userSchema);

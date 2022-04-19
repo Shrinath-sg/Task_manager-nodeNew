@@ -29,13 +29,31 @@ router.post("/tasks",auth,async(request,response)=>{
 
 router.get("/getAllTasks",auth,async(request,response)=>{
     try{
-        const tasks = await Task.find({"owner": request.user._id});
-        if(!tasks){
-            return  response.status(404).send();
+        // console.log(request.query.isCompleted);
+        const match = {};
+        const sort = {};
+        if(request.query.isCompleted){
+            // console.log(typeof request.query.isCompleted);
+            match.isCompleted = request.query.isCompleted === 'true'
         }
-        // const data =await request.user.populate('tasks');
-        response.status(200).send(tasks);
-        // response.status(200).send(data);
+        if(request.query.sortBy){
+            const parts = request.query.sortBy.split(':');
+            sort[parts[0]] = parts[1] == 'desc' ? -1 : 1;
+        }
+        // console.log("match data" + match.isCompleted);
+        // const tasks = await Task.find({"owner": request.user._id});
+        // if(!tasks){
+        //     return  response.status(404).send();
+        // }
+        await request.user.populate({path:'tasks',
+        match,
+        options: {
+            limit: request.query.limit,
+            skip: request.query.skip,
+            sort
+        }});
+        // response.status(200).send(tasks);
+        response.status(200).send(request.user.tasks);
     }catch(e){
         response.status(400).send(e);
     }
